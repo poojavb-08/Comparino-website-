@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+
+    <script>
+        var app = angular.module('myApp', ['ngRoute']);
+
+        app.controller('ctrl', function ($scope, $http, $window) {
+            $scope.searchTerm = '';
+            $scope.results = [];
+
+            $http.get('http://127.0.0.1:5000/data').then(function (response) {
+                var data = response.data;
+
+                $scope.results = data.amazon.map(function (amazonProduct) {
+                    var title = amazonProduct.Title;
+                    var lowestPrice = parseFloat(amazonProduct.Price);
+                    var lowestPlatform = 'Amazon';
+                    var flipkartPrice = null;
+                    var gemPrice = null;
+
+                    data.flipkart.forEach(function (flipkartProduct) {
+                        if (flipkartProduct.Title === title) {
+                            flipkartPrice = parseFloat(flipkartProduct.Price);
+                            if (flipkartPrice < lowestPrice) {
+                                lowestPrice = flipkartPrice;
+                                lowestPlatform = 'Flipkart';
+                            }
+                        }
+                    });
+
+                    data.gem.forEach(function (gemProduct) {
+                        if (gemProduct.Title === title) {
+                            gemPrice = parseFloat(gemProduct.Price);
+                            if (gemPrice < lowestPrice) {
+                                lowestPrice = gemPrice;
+                                lowestPlatform = 'GeM';
+                            }
+                        }
+                    });
+
+                    return {
+                        title: title,
+                        picture: amazonProduct['picture1-src'],
+                        ratings: amazonProduct.Ratings,
+                        price: amazonProduct.Price,
+                        lowestPlatform: lowestPlatform,
+                        singleHref: amazonProduct['single-href'],
+                        flipkartPrice: flipkartPrice,
+                        gemPrice: gemPrice,
+                        flipkartLink: data.flipkart.find(product => product.Title === title)?.['single-href'],
+                        gemLink: data.gem.find(product => product.Title === title)?.['single-href']
+                    };
+                });
+            });
+
+            $scope.redirectTo = function (url) {
+                $window.open(url, '_blank');
+            };
+        });
+    </script>
+    <style>
+        header {
+            background-color: rgb(7, 7, 43);
+            padding: 10px 0;
+        }
+        
+        header ul {
+            padding: 10px;
+            list-style: none; 
+        }
+        
+        header ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        
+        header ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        header button {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 10px;
+            width: 10%;
+            background-color: #f7ef0b;
+            color: rgb(10, 7, 7);
+            border: none;
+            cursor: pointer;
+        }
+        
+        section {
+            background-color: rgb(63, 63, 72);
+            text-align: center;
+            color: white;
+        }
+        section .button{
+            float: right;
+            
+        }
+        .product-section {
+        text-align: center; 
+    }
+
+    .search-input {
+        margin-bottom: 10px; 
+        float: right;
+        padding-right: 10%;
+    }
+
+    .product {
+        display: inline-block; 
+        vertical-align: top; 
+        width: 30%; 
+        margin: 10px; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    }
+        footer {
+            background-color: rgb(7, 7, 43);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body ng-app="myApp">
+    <header>
+        <img src="logo.png" alt="Logo" style="width: 100px; height: 100px; padding-top: 2%; padding-left: 2%;">
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="brands.html">Brands</a></li>
+            <li><a href="storepolicies.html">Store Policies</a></li>
+            <li><a href="customer service.html">Customer Services</a></li>
+            <li><a href="Special Offers.html">Special Offers</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="index.html">Shop</a></li>
+            <li><a href="login.html"><button type="submit">Login</button></a></li>
+            <li><a href="signup.html"><button type="submit">SignUp</button></a></li>
+        </ul>
+    </header>
+
+    <section ng-controller="ctrl as list1">
+        Search : <input type="text" ng-model="searchTerm">
+
+        <div class="product" ng-repeat="item in results | filter: searchTerm">
+            <h3>{{ item.title }}</h3>
+            <img ng-src="{{ item.picture }}" alt="{{ item.title }}" style="width: 100px; height: 100px;">
+            <p>Ratings: {{ item.ratings }}</p>
+            <p>Price: {{ item.price }}</p>
+            <p>Best Platform: {{ item.lowestPlatform }}</p>
+            
+            <button ng-show="item.lowestPlatform === 'Amazon'" ng-click="redirectTo(item.singleHref)">Amazon</button>
+            <button ng-show="item.flipkartPrice !== null" ng-click="redirectTo(item.flipkartLink)">Flipkart: {{ item.flipkartPrice }}</button>
+            <button ng-show="item.gemPrice !== null" ng-click="redirectTo(item.gemLink)">GeM: {{ item.gemPrice }}</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>poojadharshinivb@student.tce.edu</p>
+        <p>&copy; 2023 Comparino. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

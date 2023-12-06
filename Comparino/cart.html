@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html ng-app="ecommerceApp">
+<head>
+    <meta charset="utf-8">
+    <title>Your Shopping Cart - Lappy.com</title>
+    <link rel="icon" type="image/x-icon" href="lappy logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        header{
+            background-color: rgb(7, 7, 43);
+            padding: 10px 0;
+        }
+        header ul {  
+            padding: 10px;
+        }
+        header ul li {
+            display: inline;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+        header ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        header button {
+          display: inline-block;
+          margin-bottom: 10px;
+          margin-left: 20px;
+          width: 100%;
+          padding: 10px;
+          width:10%;
+          background-color: #f7ef0b;
+          color: rgb(10, 7, 7);
+          border: none;
+          cursor: pointer;
+        }
+        section{
+            background-color: rgb(63, 63, 72);
+            float:right;
+            padding-right: 5%;
+            text-align: center;
+        }
+        .cart-container {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table th,
+        .cart-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .cart-total {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .cart-buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>
+    <script>
+        var app = angular.module('myApp', ['ngRoute']);
+        app.config(function ($routeProvider) {
+            $routeProvider
+                .when('/cart', {
+                    templateUrl: 'cart.html',
+                    controller: 'CartController as cartCtrl'
+                })
+                .otherwise({ redirectTo: '/' });
+        });
+app.controller('CartController', function ($scope) {
+    var cartCtrl = this;
+    cartCtrl.cartItems = list1.cart;
+    cartCtrl.decrementQuantity = function (product) {
+        if (product.quantity > 1) {
+            product.quantity--;
+        }
+    };
+
+    cartCtrl.incrementQuantity = function (product) {
+        product.quantity++;
+    };
+});
+
+        
+    </script>
+</head>
+<body ng-controller="ProductController">
+    <header>
+        <img src="lappy logo.png" style="width:100px;height:100px;padding-top: 2%;padding-left: 2%;">
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="brands.html">Brands</a></li>
+            <li><a href="storepolicies.html">Store Policies</a></li>
+            <li><a href="customer service.html">Customer Services</a></li>
+            <li><a href="Special Offers.html">Special Offers</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="login.html"><button type="submit">Login</button></a></li>
+            <li><a href="signup.html"><button type="submit">SignUp</button></a></li>
+        </ul>
+    </header>
+
+    <div class="sections" ng-controller="CartController as cartCtrl">
+        <div class="cart-container">
+            <h1>Your Shopping Cart</h1>
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in cartCtrl.cartItems">
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>
+                            <button ng-click="cartCtrl.decrementQuantity(item)">-</button>
+                            {{ item.quantity }}
+                            <button ng-click="cartCtrl.incrementQuantity(item)">+</button>
+                        </td>
+                        <td>${{ item.price * item.quantity }}</td>
+                    </tr>
+                </tbody>
+            </table>
+    
+            <div class="cart-total">
+                Total: ${{ cartCtrl.getTotalCost() }}
+            </div>
+    
+            <div class="cart-buttons">
+                <a href="checkout.html" class="btn btn-primary">Proceed to Payment</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
